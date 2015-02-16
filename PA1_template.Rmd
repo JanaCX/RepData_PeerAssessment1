@@ -194,6 +194,8 @@ wkday <- wkday %>%
 wkday$day <- "weekday"
 
 newInterval <- rbind(wkend, wkday)
+newInterval$day <- as.factor(newInterval$day)
+newInterval$day <- relevel(newInterval$day, "weekend")
 ```
 
 The two panel plot is now created, using the *day* column as a factor to spearate the *weekday* from the *weekend* timeseries.
