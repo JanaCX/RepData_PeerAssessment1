@@ -1,15 +1,15 @@
 ---
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-      html_document:
-      keep_md: true
-      self_contained: no
+title: 'Reproducible Research: Peer Assessment 1'
+output:
+  html_document: null
+  keep_md: yes
+  pdf_document: default
+  self_contained: no
 ---
 # Reproducible Research: Peer Assessment 1
 
 ## Introduction
-It is now possible to collect a large amount of data about personal movement using activity monitoring devices such as a [Fitbit] [1] , [Nike Fuelband] [2],
-or [Jawbone Up] [3]. These type of devices are part of the “quantified self”
+It is now possible to collect a large amount of data about personal movement using activity monitoring devices such as a [Fitbit] [1] , [Nike Fuelband] [2], or [Jawbone Up] [3]. These type of devices are part of the “quantified self”
 movement – a group of enthusiasts who take measurements about themselves regularly to improve their health, to find patterns in their behavior, or because they are tech geeks. But these data remain underutilized both because the raw data are hard to obtain and there is a lack of statistical methods and software for processing and interpreting the data.
 
 [1]: http://www.fitbit.com "Fitbit"
@@ -44,37 +44,39 @@ dim(activityData)
 head(activityData)
 ```
 
-The previous output shows we have indeed the number of observations and variables mentioned in the assignment description, and we can see that during the first day of data collection we have several intervls with missing values that we will need to deal later with.   
+The previous output shows we have indeed the number of observations and variables mentioned in the assignment description, and we can see that during the first day of data collection we have several intervals with missing values that we will need to deal later with.   
 
    
 ## Analysis   
 ### 1. What is the mean total number of steps taken per day?  
 
-We can use **dplyr** to group and summarize the data and store it in the variable *AvgDay*:  
+We can use **dplyr** to group and summarize the data and store it in the variable *AvgDay*, the following lines calculate the total number of steps per day and the mean number of daily steps:  
 
 ```{r calculating mean number of steps for each day, message =  FALSE}
 library (dplyr)
 AvgDay <- activityData %>% group_by(date) %>%
-          summarize(mean.step = mean(steps, na.rm = T))
+          summarize(total.steps = sum(steps, na.rm = T), 
+                  mean.steps = mean(steps, na.rm = T))
 ```
 
-Once the average values per day are calculated, we can construct the histogram:
+Once the summaries are calculated, we can construct the histogram of the total steps:
 
 ```{r histogram of mean steps/day}
 library(ggplot2)
-g <- ggplot(AvgDay, aes(x=mean.step))
-g + geom_histogram(binwidth = 10) + theme(axis.text = element_text(size = 12),  
-      axis.title = element_text(size = 14)) + labs(y = "Frequency") + labs(x = "")
+g <- ggplot(AvgDay, aes(x=total.steps))
+g + geom_histogram(binwidth = 2500) + theme(axis.text = element_text(size = 12),  
+      axis.title = element_text(size = 14)) + labs(y = "Frequency") + labs(x = "Total steps/day")
 ```
 
-The histogram shows the largest count around the 30-40 step class thus we can infer that the mean will be in this interval, the data is symmetrically distributed around the center of the distribution.   
-Let's get a summary of the average data, which will include the mean and the median, to get a more quantitative insight of the data:
+The histogram shows the largest count around the 10000-12500 step class thus we can infer that the median will be in this interval, the data is symmetrically distributed around the center of the distribution, except for one class at the extreme left.   
+Let's get a summary of the data, which will include the mean and the median, to get a more quantitative insight of the data:
 
 ```{r summary of the average data}
-summary(AvgDay$mean.step)
+summary(AvgDay$total.steps)
+summary (AvgDay$mean.steps)
 ```
 
-Observe that the mean and the median have the same value but also that there are 8 missing values, perhaps our tester forgot to use the monitor 8 days in the 2 month period or he/she just decided to stay in bed all day (?!?!)
+Observe that the mean and the median of the total steps are close in value, but also that there are 8 missing values (fromt he summary of mean number of steps), perhaps our tester forgot to use the monitor 8 days in the 2 month period or he/she just decided to stay in bed all day (?!?!)
 
 
 ### 2. What is the daily activity pattern?  
@@ -112,7 +114,7 @@ There are several alternatives we can use to fill the NAs, for example:
 - Using the average steps during the day to fill in NAs within the same day. The drawbacks of this method are that we have seen there is a large variation thoughout the day (see timeseries plot) and more importantly we observed in the summary of the *AvgDay* that there are 8 days when no data was recorded so in those cases we would not have an estimator. 
 - Using the average steps per interval. We will use this metric as our first attempt to fill in the NAs.      
 
-First, we will check for missing values in the *interval* column within*AvgInterval*, where we stored the mean number of steps for each 5 min interval:  
+First, we will check for missing values in the *interval* column within *AvgInterval*, where we stored the mean number of steps for each 5 min interval:  
 
 ```{r checking for NAs in the interval average data}
 sum(is.na(AvgInterval$mean.steps))
@@ -138,32 +140,32 @@ head(newData)
 ```
 
 We can observe from the previous output that now there are numeric values in the first rows of the dataset.       
-We use a similar method as before to group the data by date and calculate daily averages:
+We use a similar method as before to group the data by date and calculate daily totals:
 
 ```{r daily mean for newData}
 newAvg <- newData %>% group_by(date) %>%
-      summarize(mean.step = mean(steps, na.rm = T))
+      summarize(total.steps = sum(steps, na.rm = T))
 ```
 
 And we can construct the histogram:
 
 ```{r histogram 2}
-g <- ggplot(newAvg, aes(x=mean.step))
-g + geom_histogram(binwidth = 10) + theme(axis.text = element_text(size = 12),
+g <- ggplot(newAvg, aes(x=total.steps))
+g + geom_histogram(binwidth = 2500) + theme(axis.text = element_text(size = 12),
       axis.title = element_text(size = 14)) + labs(y = "Frequency") + labs(x = "")
 ```
 
-This figure shows, similarly to the first histogram, symmetrically distributed data around the maximum count which is found in the 30-40 steps class. One mus notice that filling values with the interval means increases the frequencies in the 30-40 and 40-50 bins.   
+This figure shows, similarly to the first histogram, symmetrically distributed data around the maximum without the column in the extreme left (which contained the days with missing data). One must notice that filling values with the interval means increases the frequencies in the 10000-12500 class, which contains the median.   
 For a more quantitative comparison lets review the 5 number summaries and standard deviations of the original data *AvgDay* vs the data with the imputed values *newData*
 
 ```{r data summaries}
-summary (AvgDay$mean.step)
-sd(AvgDay$mean.step, na.rm=T)
-summary (newAvg$mean.step)
-sd(newAvg$mean.step, na.rm=T)
+summary (AvgDay$total.steps)
+sd(AvgDay$total.steps, na.rm=T)
+summary (newAvg$total.steps)
+sd(newAvg$total.steps, na.rm=T)
 ```
 
-Both summaries show the same maximum and minimum values, that we were not expecting to change so we use to check for data integrity. The mean and the median also remain the same, however the 1st and 3d quantiles of the new data slide closer to the mean. When we look at the standard deviation values, we can also observe that the new data has a smaller standard deviation, thus the effect of imputing NAs with the mean values for the time intervals is a decrease in the spread, we obtained a distribution that is more concentrated around the center of gravity.     
+The mean and the median stay the same, however the 1st quantile of the new data slides closer to the mean. When we look at the standard deviation values, we can also observe that the new data has a smaller standard deviation, thus the effect of imputing NAs with the mean values for the time intervals is a decrease in the spread, we obtained a distribution that is more concentrated around the center of gravity.     
 
 ### 4. Are there differences in activity patterns between weekdays and weekends?
 Different weekend vs weekday patterns are expected as people, in general, have a different set of activities on weekends.  
@@ -206,5 +208,5 @@ g + geom_line() + facet_grid (day~.) + theme(axis.text = element_text(size = 12)
       axis.title = element_text(size = 14)) + labs(y = "Number of Steps") + labs(x = "Interval")
 ```
 
-We observe that, as expected, the activity profiles between weekdays and weekends greatly differ. During the weekdays, activity peaks in the morning between 7 and 9 and then the activity remains below ~100 steps. In contrast, the weekend data does not show a period with particularly high level of activity, but the activity remains higher than the weekday activity at most times and in several instances it surpases the 100 steps mark and it is overall more venly distributed throughout the day. 
+We observe that, as expected, the activity profiles between weekdays and weekends greatly differ. During the weekdays, activity peaks in the morning between 7 and 9 and then the activity remains below ~100 steps. In contrast, the weekend data does not show a period with particularly high level of activity, but the activity remains higher than the weekday activity at most times and in several instances it surpases the 100 steps mark and it is overall more evenly distributed throughout the day. 
 
