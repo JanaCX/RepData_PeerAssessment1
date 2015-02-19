@@ -229,7 +229,7 @@ And we can construct the histogram:
 ```r
 g <- ggplot(newAvg, aes(x=total.steps))
 g + geom_histogram(binwidth = 2500) + theme(axis.text = element_text(size = 12),
-      axis.title = element_text(size = 14)) + labs(y = "Frequency") + labs(x = "")
+      axis.title = element_text(size = 14)) + labs(y = "Frequency") + labs(x = "Total steps/day")
 ```
 
 ![plot of chunk histogram 2](figure/histogram 2-1.png) 

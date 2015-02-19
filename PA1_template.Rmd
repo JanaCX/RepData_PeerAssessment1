@@ -152,7 +152,7 @@ And we can construct the histogram:
 ```{r histogram 2}
 g <- ggplot(newAvg, aes(x=total.steps))
 g + geom_histogram(binwidth = 2500) + theme(axis.text = element_text(size = 12),
-      axis.title = element_text(size = 14)) + labs(y = "Frequency") + labs(x = "")
+      axis.title = element_text(size = 14)) + labs(y = "Frequency") + labs(x = "Total steps/day")
 ```
 
 This figure shows, similarly to the first histogram, symmetrically distributed data around the maximum without the column in the extreme left (which contained the days with missing data). One must notice that filling values with the interval means increases the frequencies in the 10000-12500 class, which contains the median.   
